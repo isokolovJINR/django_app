@@ -3,3 +3,7 @@ Django
 django_taggit
 markdown
 Pillow
+social-auth-app-django
+django-extensions
+werkzeug
+pyOpenSSL
