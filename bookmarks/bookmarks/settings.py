@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['mysite.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
+    'images.apps.ImagesConfig',
     'django.contrib.auth',
     'django.contrib.admin',
     'django.contrib.contenttypes',
@@ -93,6 +94,7 @@ DATABASES = {
         'PASSWORD': '4fc10a35b930a1f81575d85e55719b121363836823eb37aae86edf3d07606544',
         'HOST': 'ec2-63-34-180-86.eu-west-1.compute.amazonaws.com',
         'PORT': '5432',
+        'OPTIONS': {'sslmode': 'require'},
     }
 }
 
@@ -145,3 +147,32 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '789373599122-mtgmlscba7hc9csjh8h5hmfsj73tuple.apps.googleusercontent.com' # Google Consumer Key
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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' # Google Consumer Secret
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+
+    'handlers': {
+
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+
+        'werkzeug': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
