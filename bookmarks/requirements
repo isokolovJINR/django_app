@@ -7,3 +7,4 @@ social-auth-app-django
 django-extensions
 werkzeug
 pyOpenSSL
+easy-thumbnails
