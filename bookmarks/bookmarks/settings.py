@@ -33,6 +33,7 @@ ALLOWED_HOSTS = ['mysite.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'account.apps.AccountConfig',
+    'actions.apps.ActionsConfig',
     'images.apps.ImagesConfig',
     'django.contrib.auth',
     'django.contrib.admin',
@@ -182,3 +183,6 @@ ABSOLUTE_URL_OVERRIDES = {
     'auth.user': lambda u: reverse_lazy('user_detail',
                                         args=[u.username])
 }
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0
