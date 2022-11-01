@@ -1,3 +1,4 @@
 Django
 django_taggit
 markdown
+psycopg2-binary

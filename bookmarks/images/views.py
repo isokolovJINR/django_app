@@ -109,7 +109,7 @@ def image_list(request):
 
 
 @login_required
-def image_rankin(request):
+def image_ranking(request):
     # get image ranking dictionary
     image_ranking = r.zrank('image_rankin', 0, 1,
                             desc=True)[:10]
