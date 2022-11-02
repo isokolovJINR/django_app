@@ -28,7 +28,15 @@ Your shopping cart
                     <td>{{ product.name }}</td>
                     <td>{{ item.quantity }}</td>
                     <td>
-                        <form action="{% url "cart:cart_remove" product_id %}" method="post">
+                        <form action="{% url "cart:cart_add" product.id %}" method="post">
+                            {{ item.update_quantity_count.quantity }}
+                            {{ item.update_quantity_count.override }}
+                            <input type="submit" value="Update">
+                            {% csrf_token %}
+                        </form>
+                    </td>
+                    <td>
+                        <form action="{% url "cart:cart_remove" product.id %}" method="post">
                             <input type="submit" value="Remove">
                             {% csrf_token %}
                         </form>
