@@ -1,0 +1,4 @@
+Django
+pillow
+celery==4.4.2
+flower==0.9.3
