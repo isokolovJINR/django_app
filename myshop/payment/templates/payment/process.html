@@ -1,0 +1,13 @@
+{% extends "shop/base.html" %}
+{% block title %}Pay by credit card{% endblock %}
+{% block content %}
+    <h1>Pay by credit card</h1>
+    <form id="payment" method="post">
+    <label for="card-number">Card Number</label>
+        <div id="card-number" class="field"></div>
+        <label for="cvv">CVV</label>
+        <div id="cvv" class="field"></div>
+{% csrf_token %}
+        <input type="submit" value="Pay">
+</form>
+{% endblock %}
