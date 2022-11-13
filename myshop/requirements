@@ -3,3 +3,4 @@ pillow
 celery==4.4.2
 flower==0.9.3
 WeasyPrint==51
+django-rosetta==0.9.3

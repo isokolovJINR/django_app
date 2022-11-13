@@ -34,7 +34,7 @@ def cart_detail(request):
         item['update_quantity_count'] = CartAddProductForm(initial={
             'quantity': item['quantity'],
             'override': True})
-    coupon_apply_form = CouponApplyFrom
+    coupon_apply_form = CouponApplyFrom()
     return render(request, 'cart/detail.html', {'cart': cart,
                                                 'coupon_apply_form': coupon_apply_form})
 
