@@ -13,7 +13,6 @@ class Category(TranslatableModel):
                               unique=True)
     )
 
-
     class Meta:
         # ordering = ('name', )
         verbose_name = 'category'
