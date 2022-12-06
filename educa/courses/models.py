@@ -3,7 +3,15 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from .fields import OrderField
+from mptt.models import MPTTModel, TreeForeignKey
 # Create your models here.
+
+
+class TreeItem(MPTTModel):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
 
 
 class Folder(models.Model):
@@ -20,12 +28,12 @@ class Folder(models.Model):
         return self.name
 
 
-class File(models.Model):
+class Document(models.Model):
     owner = models.ForeignKey(User,
-                              related_name='file_created',
+                              related_name='document_created',
                               on_delete=models.CASCADE)
     folder = models.ForeignKey(Folder,
-                                related_name='files',
+                                related_name='documents',
                                 on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)

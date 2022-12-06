@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import inlineformset_factory
-from .models import Course, Module, Folder
+from .models import Course, Module, Folder, Document
 
 ModuleFormSet = inlineformset_factory(Course, Module,
                                       fields=['title',
@@ -12,7 +12,14 @@ ModuleFormSet = inlineformset_factory(Course, Module,
 class FolderCreateForm(forms.ModelForm):
     class Meta:
         model = Folder
-        fields = ('name',)
+        fields = ('name', 'slug')
+
+
+class DocumentCreateForm(forms.ModelForm):
+    class Meta:
+        model = Document
+        fields = ('title', 'slug')
+
 
     # def clean_url(self):
     #     url = self.cleaned_data['url']

@@ -2,21 +2,21 @@
 
 {% block title %}
     {% if object %}
-        Edit Folder "{{ object.title }}"
+        Edit Document "{{ object.title }}"
     {% else %}
-        Create a new Folder
+        Create a new Document
     {% endif %}
 {% endblock %}
 {% block content %}
     <h1>
         {% if object %}
-            Edit Folder "{{ object.title }}"
+            Edit Document "{{ object.title }}"
         {% else %}
-            Create a new Folder
+            Create a new Document
         {% endif %}
     </h1>
     <div class="module">
-        <h2>Folder info</h2>
+        <h2>Document info</h2>
         <form method="post">
             {{ form.as_p }}
             {% csrf_token %}

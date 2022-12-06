@@ -42,5 +42,8 @@ urlpatterns = [
     path('content/order/',
          views.ContentOrderView.as_view(),
          name='content_order'),
+    path('document/<int:folder_id>/create/',
+         views.DocumentCreateUpdateView.as_view(),
+         name='document_create'),
 
 ]

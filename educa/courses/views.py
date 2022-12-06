@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from .models import Course, Folder
+from .models import Course, Folder, TreeItem
 from groups_manager.models import Group, GroupMemberRole, Member
 from django.forms.models import modelform_factory
 from django.apps import apps
@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.base import TemplateResponseMixin, View
-from .forms import ModuleFormSet, FolderCreateForm
+from .forms import ModuleFormSet, FolderCreateForm, DocumentCreateForm
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 # Create your views here.
 import logging
@@ -214,7 +214,7 @@ class FolderListView(TemplateResponseMixin, View):
         logger.error(test_group.group_members)
         # logger.error(str(currentuser.groups_manager_group_set))
         logger.error(str(currentuser.groups_manager_group_set.all()))
-        folders = ''
+        folders = TreeItem.objects.all()
         # pdb.set_trace()
         return self.render_to_response({'folders': folders})
 
@@ -255,24 +255,127 @@ class FolderCreateUpdateView(TemplateResponseMixin, View):
         logger.error(request.user)
         # user = User.get(username=request.user.id)
         currentuser = Member.objects.get(django_user_id=request.user.id)
-
         logger.error(str(currentuser.groups_manager_group_set))
-        #### использовать MPP для построения иерархии
-        # form = self.get_form(self.model,
-        #                      instance=self.obj,
-        #                      data=request.POST,
-        #                      files=request.FILES)
-        #
-        # if form.is_valid():
-        #     obj = form.save(commit=False)
-        #     obj.owner = request.user
-        #     obj.save()
-        #     if not id:
-        #         # new content
-        #         Content.objects.create(module=self.module,
-        #                                item=obj)
+        rootFolder = TreeItem.objects.get(id=2)
 
+        # pdb.set_trace()
 
+        form = FolderCreateForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.owner = request.user
+            obj.save()
+            # pdb.set_trace()
+            TreeItem.objects.create(content_object=obj, parent=rootFolder)
+
+            # pdb.set_trace()
         return redirect('manage_folder_list')
         # return self.render_to_response({'form': form,
         #                                 'object': self.obj})
+
+
+class DocumentCreateUpdateView(TemplateResponseMixin, View):
+    module = None
+    model = None
+    obj = None
+    template_name = 'folders/manage/Document/form.html'
+    # def get_model(self, model_name):
+    #     if model_name in ['text', 'video', 'image', 'file']:
+    #         return apps.get_model(app_label='courses',
+    #                               model_name=model_name)
+    #     return None
+    # def get_form(self, model, *args, **kwargs):
+    #     Form = modelform_factory(model, exclude=['owner',
+    #                                              'order',
+    #                                              'created',
+    #                                              'updated'])
+    #     return Form(*args, **kwargs)
+
+    # def dispatch(self, request, module_id, model_name, id=None):
+    #     self.module = get_object_or_404(Module,
+    #                                     id=module_id,
+    #                                     course__owner=request.user)
+    #     self.model = self.get_model(model_name)
+    #     if id:
+    #         self.obj = get_object_or_404(self.model,
+    #                                      id=id,
+    #                                      owner=request.user)
+    #     return super().dispatch(request, module_id, model_name, id)
+
+    def get(self, request,  *args, **kwargs):
+        form = DocumentCreateForm()
+        return self.render_to_response({'form': form})
+
+    def post(self, request, folder_id, id=None):
+
+        # # user = User.get(username=request.user.id)
+        # currentuser = Member.objects.get(django_user_id=request.user.id)
+        # logger.error(str(currentuser.groups_manager_group_set))
+        rootFolder = TreeItem.objects.get(id=folder_id)
+
+        form = DocumentCreateForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.owner = request.user
+            obj.folder = rootFolder.content_object
+            obj.save()
+            pdb.set_trace()
+            TreeItem.objects.create(content_object=obj, parent=rootFolder)
+
+            # pdb.set_trace()
+        return redirect('manage_folder_list')
+
+
+
+# class ContentCreateUpdateView(TemplateResponseMixin, View):
+#     module = None
+#     model = None
+#     obj = None
+#     template_name = 'courses/manage/content/form.html'
+#
+#     def get_model(self, model_name):
+#         if model_name in ['text', 'video', 'image', 'file']:
+#             return apps.get_model(app_label='courses',
+#                                   model_name=model_name)
+#         return None
+#
+#     def get_form(self, model, *args, **kwargs):
+#         Form = modelform_factory(model, exclude=['owner',
+#                                                  'order',
+#                                                  'created',
+#                                                  'updated'])
+#         return Form(*args, **kwargs)
+#
+#     def dispatch(self, request, module_id, model_name, id=None):
+#         self.module = get_object_or_404(Module,
+#                                         id=module_id,
+#                                         course__owner=request.user)
+#         self.model = self.get_model(model_name)
+#         if id:
+#             self.obj = get_object_or_404(self.model,
+#                                          id=id,
+#                                          owner=request.user)
+#         return super().dispatch(request, module_id, model_name, id)
+#
+#     def get(self, request, module_id, model_name, id=None):
+#         form = self.get_form(self.model, instance=self.obj)
+#         return self.render_to_response({'form': form,
+#                                         'object': self.obj})
+#
+#     def post(self, request, module_id, model_name, id=None):
+#         form = self.get_form(self.model,
+#                              instance=self.obj,
+#                              data=request.POST,
+#                              files=request.FILES)
+#
+#         if form.is_valid():
+#             obj = form.save(commit=False)
+#             obj.owner = request.user
+#             obj.save()
+#             if not id:
+#                 # new content
+#                 Content.objects.create(module=self.module,
+#                                        item=obj)
+#             return redirect('module_content_list', self.module.id)
+#         return self.render_to_response({'form': form,
+#                                         'object': self.obj})

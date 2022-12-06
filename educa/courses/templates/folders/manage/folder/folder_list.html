@@ -1,25 +1,50 @@
 {% extends 'base.html' %}
+{% load mptt_tags %}
 {% block title %}My folders{% endblock %}
 {% block content %}
     <h1>My Folders</h1>
     <div class="module">
-        {% for folder in folders %}
-            <div class="course-info">
-                <h3>{{ folder.title }}
-                    <p>
-                        <a href="{% url "course_edit"  folder.id %}">Edit</a>
-                        <a href="{% url "course_delete"  folder.id %}">Delete</a>
-                        <a href="{% url "course_module_update" folder.id %}">Edit modules</a>
+        <ul>
+            {% recursetree folders %}
+                <li>
+                    {{ node.content_object }}
+                    {% if node.content_type.name == 'document'%}
+                        <a href="
+{#                            {% url "document_open"  node.id %}#}
+"
+                        >Open document</a>
+                    {% else %}
+                         <a href="{% url "document_create"  node.id %}">Create document</a>
+                    {% endif %}
 
+
+                    </br>
+                        {% if not node.is_leaf_node %}
+                            <ul>
+                                {{ children }}
+                            </ul>
+                        {% endif %}
+                </li>
+            {% endrecursetree %}
+        </ul>
+
+{#        {% for folder in folders %}#}
+{#            <div class="course-info">#}
+{#                <h3>{{ folder.title }}#}
+{#                    <p>#}
+{#                        <a href="{% url "course_edit"  folder.id %}">Edit</a>#}
+{#                        <a href="{% url "course_delete"  folder.id %}">Delete</a>#}
+{#                        <a href="{% url "course_module_update" folder.id %}">Edit modules</a>#}
+{##}
 {#                        {% if course.modules.count > 0 %}#}
 {#                            <a href="{% url "module_content_list" folder.modules.first.id %}">Manage contents</a>#}
 {#                        {% endif %}#}
-                    </p>
-                </h3>
-            </div>
-            {% empty %}
-                <p>You haven't created any courses yet.</p>
-        {% endfor %}
+{#                    </p>#}
+{#                </h3>#}
+{#            </div>#}
+{#            {% empty %}#}
+{#                <p>You haven't created any courses yet.</p>#}
+{#        {% endfor %}#}
         <p>
             <a href="{% url "folder_create" %}" class="button">Create new Folder</a>
         </p>
