@@ -17,10 +17,12 @@ from .forms import ModuleFormSet, FolderCreateForm
 from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 # Create your views here.
 import logging
+import pdb
 
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
+
 
 class ModuleOrderView(CsrfExemptMixin,
                       JsonRequestResponseMixin,
@@ -47,11 +49,13 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
     model = None
     obj = None
     template_name = 'courses/manage/content/form.html'
+
     def get_model(self, model_name):
         if model_name in ['text', 'video', 'image', 'file']:
             return apps.get_model(app_label='courses',
                                   model_name=model_name)
         return None
+
     def get_form(self, model, *args, **kwargs):
         Form = modelform_factory(model, exclude=['owner',
                                                  'order',
@@ -203,7 +207,15 @@ class FolderListView(TemplateResponseMixin, View):
     def get(self, request):
         # folders = get_object_or_404(Folder,
         #                            owner=request.user)
+        # logger.error(request.user)
+        # user = User.get(username=request.user.id)
+        currentuser = Member.objects.get(django_user_id=request.user.id)
+        test_group = Group.objects.get(id=2)
+        logger.error(test_group.group_members)
+        # logger.error(str(currentuser.groups_manager_group_set))
+        logger.error(str(currentuser.groups_manager_group_set.all()))
         folders = ''
+        # pdb.set_trace()
         return self.render_to_response({'folders': folders})
 
 
@@ -240,12 +252,12 @@ class FolderCreateUpdateView(TemplateResponseMixin, View):
         return self.render_to_response({'form': form})
 
     def post(self, request):
-
         logger.error(request.user)
         # user = User.get(username=request.user.id)
         currentuser = Member.objects.get(django_user_id=request.user.id)
 
         logger.error(str(currentuser.groups_manager_group_set))
+        #### использовать MPP для построения иерархии
         # form = self.get_form(self.model,
         #                      instance=self.obj,
         #                      data=request.POST,
