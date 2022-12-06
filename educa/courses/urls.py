@@ -5,6 +5,13 @@ urlpatterns = [
     path('mine/',
          views.ManageCourseListView.as_view(),
          name="manage_course_list"),
+
+    path('folders/',
+         views.FolderListView.as_view(),
+         name='manage_folder_list'),
+    path('folders/create',
+         views.FolderCreateUpdateView.as_view(),
+         name='folder_create'),
     path('create/',
          views.CourseCreateView.as_view(),
          name='course_create'),
@@ -29,4 +36,11 @@ urlpatterns = [
     path('module/<int:module_id>/',
          views.ModuleContentListView.as_view(),
          name='module_content_list'),
+    path('module/order/',
+         views.ModuleOrderView.as_view(),
+         name='module_order'),
+    path('content/order/',
+         views.ContentOrderView.as_view(),
+         name='content_order'),
+
 ]

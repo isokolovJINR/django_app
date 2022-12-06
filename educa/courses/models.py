@@ -6,6 +6,40 @@ from .fields import OrderField
 # Create your models here.
 
 
+class Folder(models.Model):
+    owner = models.ForeignKey(User,
+                              related_name='folder_created',
+                              on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class File(models.Model):
+    owner = models.ForeignKey(User,
+                              related_name='file_created',
+                              on_delete=models.CASCADE)
+    folder = models.ForeignKey(Folder,
+                                related_name='files',
+                                on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=200, unique=True)
+    overview = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return self.title
+
+
+
 class Subject(models.Model):
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)

@@ -1,6 +1,8 @@
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from .models import Course
+from .models import Course, Folder
+from groups_manager.models import Group, GroupMemberRole, Member
 from django.forms.models import modelform_factory
 from django.apps import apps
 from .models import Module, Content
@@ -11,8 +13,33 @@ from django.contrib.auth.mixins import LoginRequiredMixin, \
     PermissionRequiredMixin
 from django.shortcuts import redirect, get_object_or_404
 from django.views.generic.base import TemplateResponseMixin, View
-from .forms import ModuleFormSet
+from .forms import ModuleFormSet, FolderCreateForm
+from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 # Create your views here.
+import logging
+
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
+
+class ModuleOrderView(CsrfExemptMixin,
+                      JsonRequestResponseMixin,
+                      View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Module.objects.filter(id=id,
+                                  course__owner=request.user.update(order=order))
+            return self.render_json_response({'saved': 'OK'})
+
+
+class ContentOrderView(CsrfExemptMixin,
+                       JsonRequestResponseMixin,
+                       View):
+    def post(self, request):
+        for id, order in self.request_json.items():
+            Content.objects.filter(id=id,
+                                   module__course__owner=request.user).update(order=order)
+            return self.render_json_response({'saved': 'OK'})
 
 
 class ContentCreateUpdateView(TemplateResponseMixin, View):
@@ -31,6 +58,7 @@ class ContentCreateUpdateView(TemplateResponseMixin, View):
                                                  'created',
                                                  'updated'])
         return Form(*args, **kwargs)
+
     def dispatch(self, request, module_id, model_name, id=None):
         self.module = get_object_or_404(Module,
                                         id=module_id,
@@ -165,3 +193,74 @@ class ManageCourseListView(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         return qs.filter(owner=self.request.user)
+
+
+###############################################################
+class FolderListView(TemplateResponseMixin, View):
+    model = Folder
+    template_name = 'folders/manage/folder/folder_list.html'
+
+    def get(self, request):
+        # folders = get_object_or_404(Folder,
+        #                            owner=request.user)
+        folders = ''
+        return self.render_to_response({'folders': folders})
+
+
+class FolderCreateUpdateView(TemplateResponseMixin, View):
+    module = None
+    model = None
+    obj = None
+    template_name = 'folders/manage/folder/form.html'
+    # def get_model(self, model_name):
+    #     if model_name in ['text', 'video', 'image', 'file']:
+    #         return apps.get_model(app_label='courses',
+    #                               model_name=model_name)
+    #     return None
+    # def get_form(self, model, *args, **kwargs):
+    #     Form = modelform_factory(model, exclude=['owner',
+    #                                              'order',
+    #                                              'created',
+    #                                              'updated'])
+    #     return Form(*args, **kwargs)
+
+    # def dispatch(self, request, module_id, model_name, id=None):
+    #     self.module = get_object_or_404(Module,
+    #                                     id=module_id,
+    #                                     course__owner=request.user)
+    #     self.model = self.get_model(model_name)
+    #     if id:
+    #         self.obj = get_object_or_404(self.model,
+    #                                      id=id,
+    #                                      owner=request.user)
+    #     return super().dispatch(request, module_id, model_name, id)
+
+    def get(self, request,):
+        form = FolderCreateForm()
+        return self.render_to_response({'form': form})
+
+    def post(self, request):
+
+        logger.error(request.user)
+        # user = User.get(username=request.user.id)
+        currentuser = Member.objects.get(django_user_id=request.user.id)
+
+        logger.error(str(currentuser.groups_manager_group_set))
+        # form = self.get_form(self.model,
+        #                      instance=self.obj,
+        #                      data=request.POST,
+        #                      files=request.FILES)
+        #
+        # if form.is_valid():
+        #     obj = form.save(commit=False)
+        #     obj.owner = request.user
+        #     obj.save()
+        #     if not id:
+        #         # new content
+        #         Content.objects.create(module=self.module,
+        #                                item=obj)
+
+
+        return redirect('manage_folder_list')
+        # return self.render_to_response({'form': form,
+        #                                 'object': self.obj})
