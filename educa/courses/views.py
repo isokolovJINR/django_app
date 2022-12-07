@@ -315,12 +315,12 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
         custom_permissions = {
             'owner': ['view', 'change', 'delete'],
             'group': ['view'],
-            'groups_upstream': ['view'],
-            'groups_downstream': ['view'],
+            'groups_upstream': [],
+            'groups_downstream': [],
             'groups_siblings': [],
         }
         pdb.set_trace()
-        cur.assign_object(lit, doc)
+        cur.assign_object(lit, doc, custom_permissions=custom_permissions)
         print(cur.has_perm('view_folder', doc))
         pdb.set_trace()
 
