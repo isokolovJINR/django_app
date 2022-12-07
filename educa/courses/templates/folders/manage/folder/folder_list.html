@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 {% load mptt_tags %}
+{% load guardian_tags %}
+
 {% block title %}My folders{% endblock %}
 {% block content %}
     <h1>My Folders</h1>
@@ -7,7 +9,10 @@
         <ul>
             {% recursetree folders %}
                 <li>
-                    {{ node.content_object }}
+                    {{ node.content_object }} {% get_obj_perms request.user for node.content_object as "folder_perms" %}
+                    {% if "view_folder" in folder_perms %}
+                        <a >Remove page</a>
+                    {% endif %}
                     {% if node.content_type.name == 'document'%}
                         <a href="
 {#                            {% url "document_open"  node.id %}#}
