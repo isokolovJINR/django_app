@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from .models import Course, Folder, TreeItem
+from .models import Course, Folder, TreeItem, Document
 from groups_manager.models import Group, GroupMemberRole, Member
 from django.forms.models import modelform_factory
 from django.apps import apps
@@ -209,11 +209,13 @@ class FolderListView(TemplateResponseMixin, View):
         #                            owner=request.user)
         # logger.error(request.user)
         # user = User.get(username=request.user.id)
-        currentuser = Member.objects.get(django_user_id=request.user.id)
+        pdb.set_trace()
+        cur = Member.objects.get(django_user_id=request.user.id)
         test_group = Group.objects.get(id=2)
         logger.error(test_group.group_members)
+
         # logger.error(str(currentuser.groups_manager_group_set))
-        logger.error(str(currentuser.groups_manager_group_set.all()))
+        logger.error(str(cur.groups_manager_group_set.all()))
         folders = TreeItem.objects.all()
         # pdb.set_trace()
         return self.render_to_response({'folders': folders})
@@ -304,6 +306,25 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
 
     def get(self, request,  *args, **kwargs):
         form = DocumentCreateForm()
+
+        pdb.set_trace()
+        cur = Member.objects.get(django_user_id=request.user.id)
+        lit = Group.objects.get(id=2)
+        # lit.add_member(cur)
+        doc = Folder.objects.get(id=6)
+        custom_permissions = {
+            'owner': ['view', 'change', 'delete'],
+            'group': ['view'],
+            'groups_upstream': ['view'],
+            'groups_downstream': ['view'],
+            'groups_siblings': [],
+        }
+        pdb.set_trace()
+        cur.assign_object(lit, doc)
+        print(cur.has_perm('view_folder', doc))
+        pdb.set_trace()
+
+
         return self.render_to_response({'form': form})
 
     def post(self, request, folder_id, id=None):

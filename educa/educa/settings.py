@@ -33,8 +33,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 
     'courses.apps.CoursesConfig',
-    'guardian',
-    'groups_manager',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,6 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'mptt',
+    'guardian',
+    'groups_manager',
+
 
 ]
 
@@ -78,6 +80,11 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend', # this is default
     'guardian.backends.ObjectPermissionBackend',
 )
+
+
+GROUPS_MANAGER = {
+    'DJANGO_AUTH_SYNC': True,
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases

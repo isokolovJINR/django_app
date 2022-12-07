@@ -34,7 +34,7 @@ class Document(models.Model):
                               on_delete=models.CASCADE)
     folder = models.ForeignKey(Folder,
                                 related_name='documents',
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE, null=True, blank=True)
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=200, unique=True)
     overview = models.TextField()
