@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load mptt_tags %}
 {% load guardian_tags %}
+{% load static %}
 
 {% block title %}My folders{% endblock %}
 {% block content %}
@@ -8,28 +9,36 @@
     <div class="module">
         <ul>
             {% recursetree folders %}
-                <li>
-                    {{ node.content_object }} {% get_obj_perms request.user for node.content_object as "folder_perms" %}
-                    {% if "view_folder" in folder_perms %}
-                        <a >Remove page</a>
-                    {% endif %}
-                    {% if node.content_type.name == 'document'%}
-                        <a href="
-{#                            {% url "document_open"  node.id %}#}
-"
-                        >Open document</a>
-                    {% else %}
-                         <a href="{% url "document_create"  node.id %}">Create document</a>
-                    {% endif %}
+                {% get_obj_perms request.user for node as "treeitem_perms" %}
 
-
-                    </br>
-                        {% if not node.is_leaf_node %}
-                            <ul>
-                                {{ children }}
-                            </ul>
+                        {% if "view_treeitem" in treeitem_perms %}
+                              <li>
+                              {% if node.content_type.name == 'document'%}
+                                    <img src="{% static 'img/doc.png' %}" />
+                                    {{ node.content_object }}
+                            <a href="#
+    {#                            {% url "document_open"  node.id %}#}
+    "                       >
+                                {% if "change_treeitem" in treeitem_perms %}
+                                    Edit doc(Role Editor)
+                                {% endif %}
+                                 {% if "delete_treeitem" in treeitem_perms %}
+                                    View doc(Role Viewer)
+                                {% endif %}
+                            </a>
+                        {% else %}
+                          <img src="{% static 'img/folder.png' %}" />
+                             {{ node.content_object }}
+                            <a href="{% url "document_create"  node.id %}">Create document</a>
                         {% endif %}
-                </li>
+                              </br>
+                            {% if not node.is_leaf_node %}
+                                <ul>
+                                    {{ children }}
+                                </ul>
+                            {% endif %}
+                            </li>
+                    {% endif %}
             {% endrecursetree %}
         </ul>
 

@@ -18,6 +18,7 @@ from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 # Create your views here.
 import logging
 import pdb
+from guardian.core import ObjectPermissionChecker
 
 
 # Get an instance of a logger
@@ -205,20 +206,33 @@ class FolderListView(TemplateResponseMixin, View):
     template_name = 'folders/manage/folder/folder_list.html'
 
     def get(self, request):
-        # folders = get_object_or_404(Folder,
-        #                            owner=request.user)
-        # logger.error(request.user)
-        # user = User.get(username=request.user.id)
-        pdb.set_trace()
-        cur = Member.objects.get(django_user_id=request.user.id)
-        test_group = Group.objects.get(id=2)
-        logger.error(test_group.group_members)
 
-        # logger.error(str(currentuser.groups_manager_group_set))
-        logger.error(str(cur.groups_manager_group_set.all()))
+
         folders = TreeItem.objects.all()
+        cur = Member.objects.get(django_user_id=request.user.id)
+        print(cur.groups_manager_group_set.all())
+        group = Group.objects.get(id=2)
+        folder = TreeItem.objects.get(id=9)
+        custom_permissions = {
+            'owner': {
+                'Editor': ['change'],
+                'Viewer': ['delete'],
+                'default': ['view'],
+            },
+            'group': ['view'],
+            'groups_upstream': [],
+            'groups_downstream': [],
+            'groups_siblings': [],
+        }
+        # cur.assign_object(group, folder, custom_permissions=custom_permissions)
+
         # pdb.set_trace()
-        return self.render_to_response({'folders': folders})
+        cur.assign_object(group, folder, custom_permissions=custom_permissions)
+
+
+
+
+        return self.render_to_response({'folders': folders, 'groups': cur.groups_manager_group_set})
 
 
 class FolderCreateUpdateView(TemplateResponseMixin, View):
@@ -306,25 +320,6 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
 
     def get(self, request,  *args, **kwargs):
         form = DocumentCreateForm()
-
-        pdb.set_trace()
-        cur = Member.objects.get(django_user_id=request.user.id)
-        lit = Group.objects.get(id=2)
-        # lit.add_member(cur)
-        doc = Folder.objects.get(id=6)
-        custom_permissions = {
-            'owner': ['view', 'change', 'delete'],
-            'group': ['view'],
-            'groups_upstream': [],
-            'groups_downstream': [],
-            'groups_siblings': [],
-        }
-        pdb.set_trace()
-        cur.assign_object(lit, doc, custom_permissions=custom_permissions)
-        print(cur.has_perm('view_folder', doc))
-        pdb.set_trace()
-
-
         return self.render_to_response({'form': form})
 
     def post(self, request, folder_id, id=None):
@@ -333,6 +328,23 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
         # currentuser = Member.objects.get(django_user_id=request.user.id)
         # logger.error(str(currentuser.groups_manager_group_set))
         rootFolder = TreeItem.objects.get(id=folder_id)
+        cur = Member.objects.get(django_user_id=request.user.id)
+        group = Group.objects.get(id=4)
+
+        # lit.add_member(cur)
+        custom_permissions = {
+            # 'owner': ['view', 'change', 'delete'],
+            'group': ['view', 'change'],
+            'groups_upstream': [],
+            'groups_downstream': [],
+            'groups_siblings': [],
+        }
+        # pdb.set_trace()
+
+
+        # pdb.set_trace()
+
+
 
         form = DocumentCreateForm(request.POST)
         if form.is_valid():
@@ -341,7 +353,8 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
             obj.folder = rootFolder.content_object
             obj.save()
             pdb.set_trace()
-            TreeItem.objects.create(content_object=obj, parent=rootFolder)
+            newDoc = TreeItem.objects.create(content_object=obj, parent=rootFolder)
+            cur.assign_object(group, newDoc, custom_permissions=custom_permissions)
 
             # pdb.set_trace()
         return redirect('manage_folder_list')
