@@ -18,6 +18,9 @@ from braces.views import CsrfExemptMixin, JsonRequestResponseMixin
 # Create your views here.
 import logging
 import pdb
+import json
+from mptt.templatetags.mptt_tags import cache_tree_children
+from django.templatetags.static import static
 from guardian.core import ObjectPermissionChecker
 
 
@@ -201,38 +204,70 @@ class ManageCourseListView(ListView):
 
 
 ###############################################################
+#Функция по проходу по дереву
+
+def get_treeitem_type(item):
+    match item:
+        case "document":
+            return static('img/doc.png')
+        case "folder":
+            return static('img/folder.png')
+        case _:
+            return ''
+
+def recursive_node_to_dict(node, checker, permission):
+
+    if checker.has_perm(permission, node):
+        result = {
+            'id': node.pk,
+            'name': str(node.content_object),
+            "text": str(node.content_object),
+            "icon": get_treeitem_type(node.content_type.name)
+        }
+
+        children = [recursive_node_to_dict(c, checker, permission) for c in node.get_children() if checker.has_perm(permission, c)]
+        if children:
+            result['children'] = children
+        return result
+
 class FolderListView(TemplateResponseMixin, View):
     model = Folder
     template_name = 'folders/manage/folder/folder_list.html'
 
     def get(self, request):
-
+        TreeItem._tree_manager.rebuild()
 
         folders = TreeItem.objects.all()
+
         cur = Member.objects.get(django_user_id=request.user.id)
         print(cur.groups_manager_group_set.all())
-        group = Group.objects.get(id=2)
-        folder = TreeItem.objects.get(id=9)
+        group = Group.objects.get(id=3)
+        folder = TreeItem.objects.get(id=3)
         custom_permissions = {
             'owner': {
                 'Editor': ['change'],
                 'Viewer': ['delete'],
                 'default': ['view'],
             },
-            'group': ['view'],
+            'group': ['view', 'add', 'change'],
             'groups_upstream': [],
             'groups_downstream': [],
             'groups_siblings': [],
         }
-        # cur.assign_object(group, folder, custom_permissions=custom_permissions)
+        # group.assign_object(folder, custom_permissions=custom_permissions)
 
         # pdb.set_trace()
-        cur.assign_object(group, folder, custom_permissions=custom_permissions)
+        # cur.assign_object(group, folder, custom_permissions=custom_permissions)
 
+        permission_checker = ObjectPermissionChecker(request.user)
+        root_nodes = cache_tree_children(folders)
+        dicts = []
+        for n in root_nodes:
+            dicts.append(recursive_node_to_dict(n, permission_checker, 'view_treeitem'))
+        js = json.dumps(dicts)
 
-
-
-        return self.render_to_response({'folders': folders, 'groups': cur.groups_manager_group_set})
+        # pdb.set_trace()
+        return self.render_to_response({'folders': folders, 'groups': cur.groups_manager_group_set, 'js': js})
 
 
 class FolderCreateUpdateView(TemplateResponseMixin, View):
@@ -272,7 +307,7 @@ class FolderCreateUpdateView(TemplateResponseMixin, View):
         # user = User.get(username=request.user.id)
         currentuser = Member.objects.get(django_user_id=request.user.id)
         logger.error(str(currentuser.groups_manager_group_set))
-        rootFolder = TreeItem.objects.get(id=2)
+        rootFolder = TreeItem.objects.get(id=1)
 
         # pdb.set_trace()
 
@@ -324,13 +359,15 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
 
     def post(self, request, folder_id, id=None):
 
-        # # user = User.get(username=request.user.id)
-        # currentuser = Member.objects.get(django_user_id=request.user.id)
-        # logger.error(str(currentuser.groups_manager_group_set))
-        rootFolder = TreeItem.objects.get(id=folder_id)
-        cur = Member.objects.get(django_user_id=request.user.id)
-        group = Group.objects.get(id=4)
 
+        # rootFolder = TreeItem.objects.get(id=folder_id)
+
+        rootFolder = TreeItem.objects.get(id=1)
+
+        cur = Member.objects.get(django_user_id=request.user.id)
+        # group = Group.objects.get(name=rootFolder.content_object.name)
+        group = Group.objects.get(id=1)
+        pdb.set_trace()
         # lit.add_member(cur)
         custom_permissions = {
             # 'owner': ['view', 'change', 'delete'],
@@ -343,8 +380,6 @@ class DocumentCreateUpdateView(TemplateResponseMixin, View):
 
 
         # pdb.set_trace()
-
-
 
         form = DocumentCreateForm(request.POST)
         if form.is_valid():

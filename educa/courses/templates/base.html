@@ -5,13 +5,20 @@
     <meta charset="UTF-8">
 
     <title>{% block title %}Educa{% endblock %}</title>
-    <link href="{% static "css/base.css" %}" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js" integrity="sha512-TGClBy3S4qrWJtzel4qMtXsmM0Y9cap6QwRm3zo1MpVjvIURa90YYz5weeh6nvDGKZf/x3hrl1zzHW/uygftKg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" integrity="sha512-pg7xGkuHzhrV2jAMJvQsTV30au1VGlnxVN4sgmG8Yv0dxGR71B21QeHGLMvYod4AaygAzz87swLEZURw7VND2A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default-dark/style.min.css" integrity="sha512-G2U+dh7e2qpH9e1PZdGb7Hp+/uoiPbbEt3dGdU3G+eX+j3ZdnTSRL7s6jgXu94SeQBV1lOUr50kGQ99j2Vj3CA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{#    <link href="{% static "css/base.css" %}" rel="stylesheet">#}
 </head>
 <body>
     <div id="header">
         <a href="/" class="logo">Educa</a>
         <ul class="menu">
+
             {% if request.user.is_authenticated %}
+                <a href="/" class="logo">{{  request.user.username}}</a>
+
                 <li><a href="{% url "logout" %}">Sign out</a></li>
             {% else %}
                 <li><a href="{% url "login" %}">Login</a></li>
@@ -22,8 +29,7 @@
         {% block content %}
         {% endblock %}
     </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
 <script>
     $(document).ready(function () {
         {% block domready %}

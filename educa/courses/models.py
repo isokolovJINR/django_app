@@ -12,8 +12,9 @@ class TreeItem(MPTTModel):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
     parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children')
-
-
+    type = models.PositiveIntegerField()
+    class MPTTMeta:
+        order_insertion_by = ['type']
 class Folder(models.Model):
     owner = models.ForeignKey(User,
                               related_name='folder_created',
